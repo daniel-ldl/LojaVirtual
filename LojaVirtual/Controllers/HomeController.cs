@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace LojaVirtual.Controllers
 {
@@ -30,11 +32,27 @@ namespace LojaVirtual.Controllers
                 contato.email = HttpContext.Request.Form["email"];
                 contato.description = HttpContext.Request.Form["text"];
 
-                //TODO - Validar campos antes de enviar e-mail
+                var listaDeMensagem = new List<ValidationResult>();
+                var contexto = new ValidationContext(contato);
+                var isValid = Validator.TryValidateObject(contato, contexto, listaDeMensagem, true);
 
-                //chamar ContatoEmail.SendContactEmail
+                if (isValid)
+                {
+                    //chamar ContatoEmail.SendContactEmail
+                    ViewData["MSG_S"] = "Mensagem de contato enviada com sucesso!";
+                }
+                else
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach(var mensagem in listaDeMensagem)
+                    {
+                        sb.Append(mensagem.ErrorMessage + "<br />");
+                    }
 
-                ViewData["MSG_S"] = "Mensagem de contato enviada com sucesso!";
+                    ViewData["MSG_E"] = sb.ToString();
+                }
+
+                
             }
             catch(Exception ex)
             {
